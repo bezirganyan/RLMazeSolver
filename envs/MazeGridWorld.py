@@ -72,8 +72,6 @@ class MazeGridWorld:
         self.entery = entery
 
     def reset(self):
-        """ resets the environment
-        """
         self.field = self.maze
         self.field[self.entery] = 2
         self.field[self.goal] = 3
@@ -82,9 +80,6 @@ class MazeGridWorld:
         return state
 
     def step(self, a):
-        """ take a step in the environment
-        """
-
         if np.random.rand() < self.stochasticity:
             a = np.random.randint(4)
 
@@ -102,8 +97,6 @@ class MazeGridWorld:
         return next_state, reward, done
 
     def clip_xy(self, x, y):
-        """ clip coordinates if they go beyond the grid
-        """
         x_ = np.clip(x, 0, self.w - 1)
         y_ = np.clip(y, 0, self.h - 1)
         return x_, y_
@@ -119,8 +112,6 @@ class MazeGridWorld:
             return False
 
     def move(self, a):
-        """ find valid coordinates of the agent after executing action
-        """
         x, y = self.pos
         self.field[x, y] = 0
         if a == 0:
@@ -131,14 +122,11 @@ class MazeGridWorld:
             x_, y_ = x - 1, y
         if a == 3:
             x_, y_ = x, y - 1
-        # check if new position does not conflict with the wall
         if not self.isValidCoordinate(x_, y_):
             x_, y_ = x, y
         return self.clip_xy(x_, y_)
 
     def get_state(self):
-        """ get state of the environment
-        """
         if self.visual:
             state = np.rot90(self.field)[:, :, None]
         else:
@@ -146,24 +134,11 @@ class MazeGridWorld:
         return state
 
     def draw_state(self):
-        """ draws grid world
-        """
         img = np.rot90(1-self.field)
-        plt.imshow(img, cmap="gray")
+        self.plot = plt.imshow(img, cmap="terrain")
+        
 
     def next_states(self, state, action):
-        """
-        Parameters
-        ----------
-        state (s): environment state
-        action (a): action taken in state
-
-        Returns
-        -------
-        list of pairs [s', p(s'|s,a)]
-        s': possible next state
-        p(s'|s,a): transition probability
-        """
         x, y = self.pos
 
         self.pos = state
@@ -178,13 +153,6 @@ class MazeGridWorld:
         return next_states
 
     def play_with_policy(self, policy, max_iter=100, visualize=True):
-        """ play with given policy
-        Parameters
-        ----------
-        policy: function: state --> action
-        max_iter: maximum number of time steps
-        visualize: bool, if True visualize episode
-        """
         self.reset()
         for i in range(max_iter):
             state = self.get_state()
